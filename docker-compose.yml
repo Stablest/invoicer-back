@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  dev-db:
+    image: postgres:16
+    ports:
+      - 5000:5400
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: INVOICER-DB
+      PGPORT: 5400
+    networks:
+      - network1
+networks:
+  network1:
