@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String      @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -22,22 +22,43 @@ model User {
   phoneNumber  String? @unique
 
   clientes Client[]
+  invoices Invoice[]
 
   @@map("users")
 }
 
 model Client {
-  id        Int      @id @default(autoincrement())
+  id String @unique @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   fullName       String
   email          String
   phoneNumber    String?
-  profilePicture Bytes
+  profilePicture String?
+  stripeCustomerId String?
+  userId String
 
-  userId Int
+  invoices Invoice[]
+
   user   User @relation(fields: [userId], references: [id])
+  @@id([email, userId])
+
 
   @@map("clients")
+}
+
+model Invoice {
+  id String @id @default(uuid())
+
+  value Float
+  description String?
+  validUntil DateTime
+  userId String
+  clientId String
+
+  user User @relation(fields: [userId], references: [id])
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@map("invoices")
 }

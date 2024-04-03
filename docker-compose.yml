@@ -1,15 +1,50 @@
-version: '3.8'
 services:
+  invoicer-back-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - 4000:4000
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:1234@dev-db:5400/INVOICER-DB?schema=public
+    networks:
+      - network-dev
+    develop:
+      watch:
+        - action: sync
+          path: ./
+          target: ./app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+    depends_on:
+      dev-db:
+        condition: service_healthy
+        restart: true
+
   dev-db:
     image: postgres:16
     ports:
       - 5000:5400
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: INVOICER-DB
-      PGPORT: 5400
+    env_file:
+      - .env
+    volumes:
+      - dev-db-volume:/var/lib/postgresql/data
     networks:
-      - network1
+      - network-dev
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 15s
+      timeout: 30s
+      retries: 3
+      start_period: 15s
+
 networks:
-  network1:
+  network-dev:
+
+volumes:
+  dev-db-volume:
