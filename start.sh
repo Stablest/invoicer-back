@@ -1,0 +1,1 @@
+/bin/sh/ -ec 'git checkout main && npm install && echo started correctly'
